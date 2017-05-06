@@ -1,13 +1,13 @@
 import data
 import node
 import numpy as np
+import readData as rd
 
 #training_path = '/home/kmoney/Documents/neural_net/training.txt'
 #testing_path = '/home/kmoney/Documents/neural_net/testing.txt'
 training_path = '/home/casey/PycharmProjects/neural_net/training.txt'
 testing_path = '/home/casey/PycharmProjects/neural_net/testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
-
 
 ####################################################################
 learningRate = .15
@@ -17,7 +17,6 @@ hiddenNodes = 250
 
 
 def softmax(x):
-    """Compute softmax values for each sets of scores in x."""
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
 
@@ -70,9 +69,13 @@ def backPropagate(network, trueOut, finalOut, hiddenOut, inputOut):
     for x in network[2]: x.adjustWeights()
     for x in network[1]: x.adjustWeights()
 
+print "Letters Data Set ###############################"
 for z in range(0,1):
+    #hiddenNodes += 300
+    #learningRate += .05
     avg = 0
-    for y in range(0,400):
+    iters = 1
+    for y in range(0,iters):
 
         network = []
         inputLayer = []
@@ -104,7 +107,7 @@ for z in range(0,1):
             #    print guess[y]
                 #print exp[y] - guess[y]
 
-            backPropagate(network, expected[x.label], guess, hiddenOut, inputOut)
+            backPropagate(network, expected[x.label], softmax(guess), hiddenOut, inputOut)
             #raw_input("next")
 
             if count%7 == 0:
@@ -118,58 +121,103 @@ for z in range(0,1):
         for x in testingSet:
             guess, hiddenOut, inputOut = runDatum(network, x)
             #print x.label, " : ", indices[np.argmax(softmax(guess))]
-            if x.label == indices[np.argmax(softmax(guess))]:
+            if x.label == indices[np.argmax(guess)]:
                 count += 1
         #print "accuracy: %f" %(float(count) / 23)
-        avg += float(count)/7
-    print "hidden nodes: ", hiddenNodes, " => ", avg / 20
+        avg += float(count)/ len(testingSet)
+        #print indices[np.argmax(guess)]
+    print "learn rate: ", learningRate, " => ", avg / iters
+
+
+###########################################################################
+
+dataset = 'voting'
+
+
+# set up dataset then split into training and test
+path = "/home/casey/PycharmProjects/decision_trees/" + dataset + "_data.txt"
+set = rd.readFromFile(path)
+set = rd.parseToArrays(set)
+sets = rd.splitIntoSets(set, 3)
+train = sets[0] + sets[1]
+test = sets[2]
+
+newTrain = []
+for x in train:
+    label = x[0]
+    del x[0]
+    newTrain.append(data.datum(label,x))
+
+newTest = []
+for x in test:
+    label = x[0]
+    del x[0]
+    newTest.append(data.datum(label,x))
+data.normalizeVoting(newTrain)
+data.normalizeVoting(newTest)
+
+####################################################################
+learningRate = .15
+inputNodes = len(newTest[0].data)
+hiddenNodes = 200
+####################################################################
+
+print "Voting Data Set  ############################### (EXTRA CREDIT)"
+for z in range(0,1):
+    #hiddenNodes += 5
+    #learningRate += .05
+    avg = 0
+    iters = 10
+    for y in range(0,iters):
+
+        network = []
+        inputLayer = []
+        hiddenLayer = []
+        outputLayer = []
+        for x in range(0, inputNodes): inputLayer.append(node.neuron(learningRate, True, False, False, 0))
+        for x in range(0, hiddenNodes): hiddenLayer.append(node.neuron(learningRate, False, False, False, inputNodes+1))
+        for x in range(0, 2): outputLayer.append(node.neuron(learningRate, False, True, False, hiddenNodes + 1))
+
+        # add bias nodes to input and hidden layers
+        inputLayer.append(node.neuron(learningRate, True, False, True, 0))
+        hiddenLayer.append(node.neuron(learningRate, False, False, True, inputNodes + 1))
+
+        network.append(inputLayer)
+        network.append(hiddenLayer)
+        network.append(outputLayer)
+
+        expected = data.votingExpected()
+        indices = data.votingIndex()
+
+        count = 0
+        for x in newTest:
+            count += 1
+            exp = expected[x.label]
+            #print exp
+            guess, hiddenOut, inputOut = runDatum(network, x)
+            #print x.label, " : ", indices[np.argmax(guess)]
+            #for y in range(0,len(guess)):
+            #    print guess[y]
+                #print exp[y] - guess[y]
+            #print indices[x.label], softmax(guess)
+            backPropagate(network, indices[x.label], softmax(guess), hiddenOut, inputOut)
+            #raw_input("next")
+
+            if count%20 == 0:
+                #print "hello"
+                for x in hiddenLayer: x.learnRate = x.learnRate * .65
+                for x in outputLayer: x.learnRate = x.learnRate * .65
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-''''
-for y in range(0,10):
-    for x in trainingSet:
-        count += 1
-        exp = expected[x.label]
-        print exp
-        guess, hiddenOut, inputOut = runDatum(network, x)
-        print x.label, " : ", indices[np.argmax(guess)]
-        for y in range(0,len(guess)):
-            print guess[y]
-            #print exp[y] - guess[y]
-
-        backPropagate(network, expected[x.label], guess, hiddenOut, inputOut)
-        #raw_input("next")
-
-        if count%7 == 0:
-            #print 'hello'
-            for x in hiddenLayer: x.learnRate = x.learnRate * .5
-            for x in outputLayer: x.learnRate = x.learnRate * .5
-'''
-
-
+        count = 0
+        for x in newTest:
+            guess, hiddenOut, inputOut = runDatum(network, x)
+            #print x.label, " : ", np.argmax(softmax(guess))
+            if x.label == np.argmax(guess):
+                count += 1
+        avg += float(count)/ len(newTest)
+    print "hidden nodes: ", hiddenNodes, " => ", avg / iters
 
 
 

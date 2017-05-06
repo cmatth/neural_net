@@ -32,7 +32,8 @@ class neuron:
 			if self.inputNode:
 				self.output = self.input
 			else:
-				self.output =  (1.0 - exp(-self.input)) / (1.0 + exp(-self.input))
+				param = 1.1
+				self.output =  (1.0 - exp(-self.input * param)) / (1.0 + exp(-self.input * param))
 			#calculate transfer derivative
 			#self.tDer = self.output * (1.0 - self.output)
 			self.tDer = (self.input / 2) * (1 + self.output) * (1 - self.output)
@@ -45,6 +46,7 @@ class neuron:
 	def calculateError(self, expected, actual):
 			if self.outputNode:
 				self.tDer = actual * (1.0 - actual)
+				#print "*", expected, actual
 				self.error = (expected - actual) * self.tDer
 				#print self.error
 
