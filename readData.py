@@ -1,5 +1,6 @@
 import random
 import copy
+import os
 
 def readFromFile(path):
     with open(path) as f:
@@ -28,3 +29,22 @@ def parseToArrays(dataset):
     for x in dataset:
         newset.append(x.split(','))
     return newset
+
+def homefolder():
+    l_top  = '/home/kmoney/Documents/neural_net/'
+    d_top = '/home/casey/PycharmProjects/neural_net/'
+
+    if   os.path.isdir(d_top): return d_top
+    elif os.path.isdir(l_top): return l_top
+    else:
+        os.system('clear')
+        print '################################################\n' \
+              'There is no valid home folder defined. Enter a \n' \
+              'valid system path that points to the directory \n' \
+              'in which program data is stored (Q to Quit).\n' \
+              '################################################'
+        while(True):
+            path = raw_input('Path: ')
+            if   path == 'Q':         return False
+            elif os.path.isdir(path): return path
+            else: print 'Invalid Path.'

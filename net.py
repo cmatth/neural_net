@@ -4,10 +4,9 @@ import numpy as np
 import readData as rd
 import plot as pl
 
-training_path = '/home/kmoney/Documents/neural_net/training.txt'
-testing_path = '/home/kmoney/Documents/neural_net/testing.txt'
-#training_path = '/home/casey/PycharmProjects/neural_net/training.txt'
-#testing_path = '/home/casey/PycharmProjects/neural_net/testing.txt'
+home = rd.homefolder()
+training_path = home + 'training.txt'
+testing_path =  home + 'testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
 
 ####################################################################
@@ -143,9 +142,8 @@ for z in range(0,1):
 dataset = 'voting'
 
 
-# set up dataset then split into training and test
-#path = "/home/casey/PycharmProjects/decision_trees/" + dataset + "_data.txt"
-path = "/home/kmoney/Documents/neural_net/voting_data.txt"
+
+path = home + "voting_data.txt"
 set = rd.readFromFile(path)
 set = rd.parseToArrays(set)
 sets = rd.splitIntoSets(set, 3)
@@ -169,13 +167,13 @@ data.normalizeVoting(newTest)
 ####################################################################
 learningRate = 0
 inputNodes = len(newTest[0].data)
-hiddenNodes = 20
+hiddenNodes = 15
 ####################################################################
 dataX = []
 dataY = []
 
 print "Voting Data Set  ############################### (EXTRA CREDIT)"
-for z in range(0,400):
+for z in range(0,200):
     #hiddenNodes += 1
     learningRate += .05
     avg = 0
