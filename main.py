@@ -28,7 +28,7 @@ if LetterSet:
         hiddenNodes += 5
         #learningRate += .05
         avg = 0
-        iters = 5
+        iters = 20
         for y in range(0, iters):
 
             network = []
@@ -65,7 +65,6 @@ if LetterSet:
                 net.backPropagate(network, expected[x.label], net.softmax(guess), hiddenOut, inputOut)
 
                 if count % 7 == 0:
-                    # print "hello"
                     for x in hiddenLayer: x.learnRate = x.learnRate * .65
                     for x in outputLayer: x.learnRate = x.learnRate * .65
 
@@ -73,10 +72,10 @@ if LetterSet:
             for x in testingSet:
                 guess, hiddenOut, inputOut = net.runDatum(network, x)
                 print x.label, " : ", indices[np.argmax(net.softmax(guess))]
-                if x.label == indices[np.argmax(guess)]:
-                    count += 1
-                #print "accuracy: %f" %(float(count) / 23)
-            avg = float(count) / len(testingSet)
+                if x.label == indices[np.argmax(guess)]: count += 1
+                acc = float(count) / len(testingSet)
+                avg += acc
+            avg = avg / iters
             xData.append(hiddenNodes)
             yData.append(avg)
 
