@@ -2,15 +2,16 @@ import data
 import node
 import numpy as np
 import readData as rd
+import plot as pl
 
-#training_path = '/home/kmoney/Documents/neural_net/training.txt'
-#testing_path = '/home/kmoney/Documents/neural_net/testing.txt'
-training_path = '/home/casey/PycharmProjects/neural_net/training.txt'
-testing_path = '/home/casey/PycharmProjects/neural_net/testing.txt'
+training_path = '/home/kmoney/Documents/neural_net/training.txt'
+testing_path = '/home/kmoney/Documents/neural_net/testing.txt'
+#training_path = '/home/casey/PycharmProjects/neural_net/training.txt'
+#testing_path = '/home/casey/PycharmProjects/neural_net/testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
 
 ####################################################################
-learningRate = .15
+learningRate = 0
 inputNodes = len(testingSet[0].data)
 hiddenNodes = 250
 ####################################################################
@@ -72,7 +73,7 @@ def backPropagate(network, trueOut, finalOut, hiddenOut, inputOut):
 print "Letters Data Set ###############################"
 for z in range(0,1):
     #hiddenNodes += 300
-    #learningRate += .05
+    learningRate += .05
     avg = 0
     iters = 1
     for y in range(0,iters):
@@ -102,10 +103,12 @@ for z in range(0,1):
             exp = expected[x.label]
             #print exp
             guess, hiddenOut, inputOut = runDatum(network, x)
-            #print x.label, " : ", indices[np.argmax(guess)]
-            #for y in range(0,len(guess)):
-            #    print guess[y]
-                #print exp[y] - guess[y]
+
+            if False:
+             print x.label, " : ", indices[np.argmax(guess)]
+             for y in range(0,len(guess)):
+                print guess[y]
+             print exp[y] - guess[y]
 
             backPropagate(network, expected[x.label], softmax(guess), hiddenOut, inputOut)
             #raw_input("next")
@@ -120,12 +123,18 @@ for z in range(0,1):
         count = 0
         for x in testingSet:
             guess, hiddenOut, inputOut = runDatum(network, x)
-            #print x.label, " : ", indices[np.argmax(softmax(guess))]
+            print x.label, " : ", indices[np.argmax(softmax(guess))]
             if x.label == indices[np.argmax(guess)]:
                 count += 1
         #print "accuracy: %f" %(float(count) / 23)
         avg += float(count)/ len(testingSet)
         #print indices[np.argmax(guess)]
+
+        if False:
+            #print x.label, " : ", indices[np.argmax(guess)]
+            for y in range(0, len(guess)):
+                print guess[y]
+            print exp[y] - guess[y]
     print "learn rate: ", learningRate, " => ", avg / iters
 
 
@@ -135,7 +144,8 @@ dataset = 'voting'
 
 
 # set up dataset then split into training and test
-path = "/home/casey/PycharmProjects/decision_trees/" + dataset + "_data.txt"
+#path = "/home/casey/PycharmProjects/decision_trees/" + dataset + "_data.txt"
+path = "/home/kmoney/Documents/neural_net/voting_data.txt"
 set = rd.readFromFile(path)
 set = rd.parseToArrays(set)
 sets = rd.splitIntoSets(set, 3)
@@ -157,17 +167,19 @@ data.normalizeVoting(newTrain)
 data.normalizeVoting(newTest)
 
 ####################################################################
-learningRate = .15
+learningRate = 0
 inputNodes = len(newTest[0].data)
-hiddenNodes = 200
+hiddenNodes = 20
 ####################################################################
+dataX = []
+dataY = []
 
 print "Voting Data Set  ############################### (EXTRA CREDIT)"
-for z in range(0,1):
-    #hiddenNodes += 5
-    #learningRate += .05
+for z in range(0,400):
+    #hiddenNodes += 1
+    learningRate += .05
     avg = 0
-    iters = 10
+    iters = 5
     for y in range(0,iters):
 
         network = []
@@ -217,8 +229,13 @@ for z in range(0,1):
             if x.label == np.argmax(guess):
                 count += 1
         avg += float(count)/ len(newTest)
-    print "hidden nodes: ", hiddenNodes, " => ", avg / iters
+    dataX.append(learningRate)
+    dataY.append(avg)
 
+    print z
+    #print "hidden nodes: ", hiddenNodes, " => ", avg / iters
+title='Effect of Learning Rate on Accuracy'
+pl.plotDataScatter(title,dataX,dataY,"Learning Rate","Accuracy")
 
 
 
