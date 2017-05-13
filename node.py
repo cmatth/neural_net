@@ -8,8 +8,8 @@ class NeuralNet:
 		self.finalOut 	 = []
 
 		self.inputLayer  = Layer('input',numInputNeurons,0).neurons
-		self.hiddenLayer = Layer('hidden',numHiddenNeurons,numInputNeurons).neurons
-		self.outputLayer = Layer('output',numOutputNeurons,numHiddenNeurons).neurons
+		self.hiddenLayer = Layer('hidden',numHiddenNeurons+1,numInputNeurons).neurons
+		self.outputLayer = Layer('output',numOutputNeurons,numHiddenNeurons+1).neurons
 
 
 	def forwardPropagate(self, datum):
@@ -37,7 +37,7 @@ class NeuralNet:
 			self.outputLayer[x].activation(outputs1)
 			self.finalOut.append(self.outputLayer[x].output)
 		normalize(self.finalOut)
-
+		self.finalout = softmax(self.finalOut)
 
 	def backPropagate(self, trueOut):
 		# get errors in output layer
@@ -54,6 +54,10 @@ class NeuralNet:
 			for x in network[2]: x.adjustWeights()
 			for x in network[1]: x.adjustWeights()
 
+	def softmax(x):
+		e_x = np.exp(x - np.max(x))
+		return e_x / e_x.sum()
+
 class Layer(NeuralNet):
 	def __init__(self, type, numNeurons, numWeights):
 		self.neurons = []
@@ -62,8 +66,8 @@ class Layer(NeuralNet):
 		if   type == 'input': input   = True
 		elif type == 'output': output = True
 		for x in range(0,numNeurons):
-			layer.append(Neuron(self.learnRate,input,output,False,numWeights))
-		layer.append(Neuron(self.learnRate,input,output,True,numWeights))
+			self.neurons.append(Neuron(self.learnRate,input,output,False,numWeights))
+		self.neurons.append(Neuron(self.learnRate,input,output,True,numWeights))
 
 
 class Neuron(Layer):

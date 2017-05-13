@@ -31,7 +31,7 @@ if LetterSet:
         iters = 20
         for y in range(0, iters):
 
-            network = []
+            '''network = []
             inputLayer = []
             hiddenLayer = []
             outputLayer = []
@@ -45,7 +45,9 @@ if LetterSet:
 
             network.append(inputLayer)
             network.append(hiddenLayer)
-            network.append(outputLayer)
+            network.append(outputLayer)'''
+
+            net = node.NeuralNet(63,hiddenNodes,7,learningRate)
 
             expected = data.classOutputs()
             indices = data.labelIndex()
