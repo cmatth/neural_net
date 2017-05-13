@@ -1,7 +1,72 @@
 import random
 from math import exp
 
-class neuron:
+class NeuralNet:
+	def __init__(self, numInputNeurons, numHiddenNeurons, numOutputNeurons, learningRate):
+		self.learnRate 	 = learningRate
+		self.learnStrat  = 'online'
+		self.finalOut 	 = []
+
+		self.inputLayer  = Layer('input',numInputNeurons,0).neurons
+		self.hiddenLayer = Layer('hidden',numHiddenNeurons,numInputNeurons).neurons
+		self.outputLayer = Layer('output',numOutputNeurons,numHiddenNeurons).neurons
+
+
+	def forwardPropagate(self, datum):
+		self.inputOut  = []
+		self.hiddenOut = []
+		self.finalOut  = []
+		# propagate datum through input layer
+		for y in range(0, len(self.inputLayer) - 1):
+			self.inputLayer[y].activation(datum.data[y])
+			self.inputOut.append(self.inputLayer[y].output)
+		# bias node
+		self.inputLayer[-1].activation(1)
+		self.inputOut.append(self.inputLayer[-1].output)
+
+		# propogate datum through the hidden layer
+		for x in range(0, len(self.hiddenLayer) - 1):
+			self.hiddenLayer[x].activation(outputs)
+			self.hiddenOut.append(self.hiddenLayer[x].output)
+		# bias node
+		self.hiddenLayer[-1].activation([1])
+		self.hiddenOut.append(self.hiddenLayer[-1].output)
+
+		# propagate datum to output layer
+		for x in range(0, len(self.outputLayer)):
+			self.outputLayer[x].activation(outputs1)
+			self.finalOut.append(self.outputLayer[x].output)
+		normalize(self.finalOut)
+
+
+	def backPropagate(self, trueOut):
+		# get errors in output layer
+		for x in range(0, len(self.outputLayer)):
+			self.outputLayer[x].calculateError(trueOut[x], self.finalOut[x])
+			self.outputLayer[x].calculateDeltas(hiddenOut)
+
+		# get errors in hidden layer
+		accumlateError(self.hiddenLayer, self.outputLayer)
+		for x in network[1]: x.calculateDeltas(self.inputOut)
+
+		if self.learnStrat == 'online':
+			# adjust weights for all nodes in network
+			for x in network[2]: x.adjustWeights()
+			for x in network[1]: x.adjustWeights()
+
+class Layer(NeuralNet):
+	def __init__(self, type, numNeurons, numWeights):
+		self.neurons = []
+		output = False
+		input  = False
+		if   type == 'input': input   = True
+		elif type == 'output': output = True
+		for x in range(0,numNeurons):
+			layer.append(Neuron(self.learnRate,input,output,False,numWeights))
+		layer.append(Neuron(self.learnRate,input,output,True,numWeights))
+
+
+class Neuron(Layer):
 	def __init__(self, Lrate, inputBool, outputBool, biasBool, numWeights):
 		self.weights = []
 		self.delta =[]
@@ -71,4 +136,10 @@ def getLayerErrors(layer):
 		errors.append(neuron.error)
 	return errors
 
+def normalize(finalOut):
+    mean = sum(finalOut) / 7
+    Rnge = max(finalOut) - min(finalOut) + .0001
+    for x in range(0,len(finalOut)):
+        finalOut[x] = (finalOut[x] - mean) / Rnge
+    return finalOut
 

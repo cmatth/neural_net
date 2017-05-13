@@ -9,14 +9,14 @@ def logbase2(x,param):
 
 
 # Graphing Logarithmic
-range = 5 # graph on x = [-range,range]
+range = 15 # graph on x = [-range,range]
 x = []
 y = []
-z= 0.1
-param = 0
+z= -range
+param = .5
 while z <= range:
     x.append(z)
-    y.append(logbase2(z,param))
+    y.append(bipolarSigmoid(z,param))
     z += .01
 pl.plotDataScatter("Exponential",x,y,'X','Y')
 
