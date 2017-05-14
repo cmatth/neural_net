@@ -1,16 +1,91 @@
 import random
+import numpy as np
 from math import exp
 
-class NeuralNet:
+
+class Neuron():
+	def __init__(self, inputBool, outputBool, biasBool, numWeights):
+		self.weights = []
+		self.delta =[]
+		self.output = 0
+		self.error = 0
+		self.input = 0
+		self.tDer = 0
+		self.inputNode = inputBool
+		self.outputNode = outputBool
+		self.bias = biasBool
+
+		for x in range(0, numWeights):
+			if not inputBool: self.weights.append(random.uniform(-.25, .25))
+			else: self.weights.append(1)
+
+	def activation(self, input):
+			#calculate activation value
+			if self.inputNode:
+				#print input, len(self.weights)
+				self.input = input
+			else:
+				self.input = 0
+				for x in range(0,len(input)):
+					#print "input:", input[x], "weight", self.weights[x]
+					#print len(input), len(self.weights)
+					self.input += input[x] * self.weights[x]
+
+			#apply to activation function
+			if self.inputNode:
+				self.output = self.input
+			else:
+				param = 1.1
+				self.output =  (1.0 - exp(-self.input * param)) / (1.0 + exp(-self.input * param))
+			#calculate transfer derivative
+			#self.tDer = self.output * (1.0 - self.output)
+			self.tDer = (self.input / 2) * (1 + self.output) * (1 - self.output)
+
+			if self.bias:
+				self.input  = 1
+				self.output = 1
+
+
+	def calculateError(self, expected, actual):
+			if self.outputNode:
+				self.tDer = actual * (1.0 - actual)
+				#print "*", expected, actual
+				self.error = (expected - actual) * self.tDer
+				#print self.error
+
+	def calculateDeltas(self, inputs,learnRate):
+		self.delta = []
+		for x in range(0,len(inputs)):
+			self.delta.append(learnRate * self.error * inputs[x])
+
+	def adjustWeights(self):
+		for x in range(len(self.weights)):
+			self.weights[x] = self.weights[x] + self.delta[x]
+
+class Layer():
+	def __init__(self, type, numNeurons, numWeights):
+		self.neurons = []
+		output = False
+		input  = False
+		if   type == 'input': input   = True
+		elif type == 'output': output = True
+		for x in range(0,numNeurons):
+			self.neurons.append(Neuron(input,output,False,numWeights))
+		if not(output):
+			self.neurons.append(Neuron(input,output,True,numWeights))
+
+class NeuralNet():
 	def __init__(self, numInputNeurons, numHiddenNeurons, numOutputNeurons, learningRate):
 		self.learnRate 	 = learningRate
 		self.learnStrat  = 'online'
 		self.finalOut 	 = []
 
-		self.inputLayer  = Layer('input',numInputNeurons,0).neurons
-		self.hiddenLayer = Layer('hidden',numHiddenNeurons+1,numInputNeurons).neurons
+		self.inputLayer  = Layer('input',numInputNeurons,1).neurons
+		#print len(self.inputLayer), 'input'
+		self.hiddenLayer = Layer('hidden',numHiddenNeurons,numInputNeurons+1).neurons
+		#print len(self.hiddenLayer), 'hidden'
 		self.outputLayer = Layer('output',numOutputNeurons,numHiddenNeurons+1).neurons
-
+		#print len(self.outputLayer), 'output'
 
 	def forwardPropagate(self, datum):
 		self.inputOut  = []
@@ -26,7 +101,7 @@ class NeuralNet:
 
 		# propogate datum through the hidden layer
 		for x in range(0, len(self.hiddenLayer) - 1):
-			self.hiddenLayer[x].activation(outputs)
+			self.hiddenLayer[x].activation(self.inputOut)
 			self.hiddenOut.append(self.hiddenLayer[x].output)
 		# bias node
 		self.hiddenLayer[-1].activation([1])
@@ -34,99 +109,30 @@ class NeuralNet:
 
 		# propagate datum to output layer
 		for x in range(0, len(self.outputLayer)):
-			self.outputLayer[x].activation(outputs1)
+			self.outputLayer[x].activation(self.hiddenOut)
 			self.finalOut.append(self.outputLayer[x].output)
 		normalize(self.finalOut)
-		self.finalout = softmax(self.finalOut)
+		self.finalOut = self.softmax(self.finalOut)
 
-	def backPropagate(self, trueOut):
+	def backPropagate(self,trueOut):
 		# get errors in output layer
 		for x in range(0, len(self.outputLayer)):
 			self.outputLayer[x].calculateError(trueOut[x], self.finalOut[x])
-			self.outputLayer[x].calculateDeltas(hiddenOut)
+			self.outputLayer[x].calculateDeltas(self.hiddenOut,self.learnRate)
 
 		# get errors in hidden layer
 		accumlateError(self.hiddenLayer, self.outputLayer)
-		for x in network[1]: x.calculateDeltas(self.inputOut)
+		for x in self.hiddenLayer: x.calculateDeltas(self.inputOut,self.learnRate)
 
 		if self.learnStrat == 'online':
 			# adjust weights for all nodes in network
-			for x in network[2]: x.adjustWeights()
-			for x in network[1]: x.adjustWeights()
+			for x in self.outputLayer: x.adjustWeights()
+			for x in self.hiddenLayer: x.adjustWeights()
 
-	def softmax(x):
+	def softmax(self,x):
 		e_x = np.exp(x - np.max(x))
 		return e_x / e_x.sum()
 
-class Layer(NeuralNet):
-	def __init__(self, type, numNeurons, numWeights):
-		self.neurons = []
-		output = False
-		input  = False
-		if   type == 'input': input   = True
-		elif type == 'output': output = True
-		for x in range(0,numNeurons):
-			self.neurons.append(Neuron(self.learnRate,input,output,False,numWeights))
-		self.neurons.append(Neuron(self.learnRate,input,output,True,numWeights))
-
-
-class Neuron(Layer):
-	def __init__(self, Lrate, inputBool, outputBool, biasBool, numWeights):
-		self.weights = []
-		self.delta =[]
-		self.output = 0
-		self.error = 0
-		self.input = 0
-		self.learnRate = Lrate
-		self.tDer = 0
-		self.inputNode = inputBool
-		self.outputNode = outputBool
-		self.bias = biasBool
-
-		for x in range(0, numWeights):
-			if not inputBool: self.weights.append(random.uniform(-.25, .25))
-			else: self.weights.append(1)
-
-	def activation(self, input):
-			#calculate activation value
-			if self.inputNode:
-				self.input = input
-			else:
-				self.input = 0
-				for x in range(0,len(input)):
-					#print "input:", input[x], "weight", self.weights[x]
-					self.input += input[x] * self.weights[x]
-
-			#apply to activation function
-			if self.inputNode:
-				self.output = self.input
-			else:
-				param = 1.1
-				self.output =  (1.0 - exp(-self.input * param)) / (1.0 + exp(-self.input * param))
-			#calculate transfer derivative
-			#self.tDer = self.output * (1.0 - self.output)
-			self.tDer = (self.input / 2) * (1 + self.output) * (1 - self.output)
-
-			if self.bias:
-				self.input = 1
-				self.output = 1
-
-
-	def calculateError(self, expected, actual):
-			if self.outputNode:
-				self.tDer = actual * (1.0 - actual)
-				#print "*", expected, actual
-				self.error = (expected - actual) * self.tDer
-				#print self.error
-
-	def calculateDeltas(self, inputs):
-		self.delta = []
-		for x in range(0,len(inputs)):
-			self.delta.append(self.learnRate * self.error * inputs[x])
-
-	def adjustWeights(self):
-		for x in range(len(self.weights)):
-			self.weights[x] = self.weights[x] + self.delta[x]
 
 def accumlateError(layer, successor):
 	for i in range(0,len(layer)):

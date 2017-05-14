@@ -13,22 +13,21 @@ home = rd.homefolder()
 training_path = home + 'training.txt'
 testing_path =  home + 'testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
-
-# Define Net Parameters ############################################
+# Define Net Parameters ##############################################
 learningRate = .15
 inputNodes = len(testingSet[0].data)
-hiddenNodes = 0
-####################################################################
+hiddenNodes = 250
+######################################################################
 
 if LetterSet:
     xData = []
     yData = []
     print "Letters Data Set ###############################"
-    for z in range(0, 50):
-        hiddenNodes += 5
+    for z in range(0, 1):
+        #hiddenNodes += 5
         #learningRate += .05
         avg = 0
-        iters = 20
+        iters = 2
         for y in range(0, iters):
 
             '''network = []
@@ -48,7 +47,7 @@ if LetterSet:
             network.append(outputLayer)'''
 
             net = node.NeuralNet(63,hiddenNodes,7,learningRate)
-
+            avg = 0
             expected = data.classOutputs()
             indices = data.labelIndex()
 
@@ -56,38 +55,24 @@ if LetterSet:
             for x in trainingSet:
                 count += 1
                 exp = expected[x.label]
-                guess, hiddenOut, inputOut = net.runDatum(network, x)
+                net.forwardPropagate(x)
+                net.backPropagate(net.finalOut)
 
-                if False:
-                    print x.label, " : ", indices[np.argmax(guess)]
-                    for y in range(0, len(guess)):
-                        print guess[y]
-                    print exp[y] - guess[y]
-
-                net.backPropagate(network, expected[x.label], net.softmax(guess), hiddenOut, inputOut)
-
+                # Decaying learning rate.
                 if count % 7 == 0:
-                    for x in hiddenLayer: x.learnRate = x.learnRate * .65
-                    for x in outputLayer: x.learnRate = x.learnRate * .65
+                    net.learnRate = net.learnRate * .65
 
             count = 0
             for x in testingSet:
-                guess, hiddenOut, inputOut = net.runDatum(network, x)
-                print x.label, " : ", indices[np.argmax(net.softmax(guess))]
-                if x.label == indices[np.argmax(guess)]: count += 1
-                acc = float(count) / len(testingSet)
-                avg += acc
-            avg = avg / iters
+                net.forwardPropagate(x)
+                if x.label == indices[np.argmax(net.finalOut)]: count += 1
+            acc = float(count) / len(testingSet)
+            avg += acc
             xData.append(hiddenNodes)
             yData.append(avg)
 
-            if False:
-                # print x.label, " : ", indices[np.argmax(guess)]
-                for y in range(0, len(guess)):
-                    print guess[y]
-                print exp[y] - guess[y]
-        #print "learn rate: ", learningRate, " => ", avg / iters
-    pl.plotDataScatter('Hidden Nodes on Accuracy', xData,yData,'Hidden Nodes','Accuracy')
+        print "learn rate: ", learningRate, " => ", avg / iters
+    #pl.plotDataScatter('Hidden Nodes on Accuracy', xData,yData,'Hidden Nodes','Accuracy')
 
     ###########################################################################
 
