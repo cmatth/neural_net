@@ -1,9 +1,9 @@
 import data
-import node
+#import node
 import numpy as np
 import readData as rd
 import plot as pl
-import net
+import net as nt
 
 # Define Runtime Parameters ##########################################
 LetterSet = True
@@ -13,6 +13,7 @@ home = rd.homefolder()
 training_path = home + 'training.txt'
 testing_path =  home + 'testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
+expected = data.classOutputs()
 # Define Net Parameters ##############################################
 learningRate = .15
 inputNodes = len(testingSet[0].data)
@@ -24,30 +25,11 @@ if LetterSet:
     yData = []
     print "Letters Data Set ###############################"
     for z in range(0, 1):
-        #hiddenNodes += 5
-        #learningRate += .05
         avg = 0
         iters = 2
         for y in range(0, iters):
 
-            '''network = []
-            inputLayer = []
-            hiddenLayer = []
-            outputLayer = []
-            for x in range(0, inputNodes): inputLayer.append(node.neuron(learningRate, True, False, False, 0))
-            for x in range(0, hiddenNodes): hiddenLayer.append(node.neuron(learningRate, False, False, False, 64))
-            for x in range(0, 7): outputLayer.append(node.neuron(learningRate, False, True, False, hiddenNodes + 1))
-
-            # add bias nodes to input and hidden layers
-            inputLayer.append(node.neuron(learningRate, True, False, True, 0))
-            hiddenLayer.append(node.neuron(learningRate, False, False, True, 64))
-
-            network.append(inputLayer)
-            network.append(hiddenLayer)
-            network.append(outputLayer)'''
-
-            net = node.NeuralNet(63,hiddenNodes,7,learningRate)
-            avg = 0
+            net = nt.NeuralNet(63,hiddenNodes,7,learningRate)
             expected = data.classOutputs()
             indices = data.labelIndex()
 
@@ -56,7 +38,7 @@ if LetterSet:
                 count += 1
                 exp = expected[x.label]
                 net.forwardPropagate(x)
-                net.backPropagate(net.finalOut)
+                net.backPropagate(expected[x.label])
 
                 # Decaying learning rate.
                 if count % 7 == 0:
@@ -66,12 +48,17 @@ if LetterSet:
             for x in testingSet:
                 net.forwardPropagate(x)
                 if x.label == indices[np.argmax(net.finalOut)]: count += 1
+                print x.label, indices[np.argmax(net.finalOut)]
+                print count
+            print count, '/', len(testingSet)
             acc = float(count) / len(testingSet)
+            print acc
             avg += acc
+            print avg
             xData.append(hiddenNodes)
             yData.append(avg)
 
-        print "learn rate: ", learningRate, " => ", avg / iters
+        print "Accuracy: ", " => ", avg / iters
     #pl.plotDataScatter('Hidden Nodes on Accuracy', xData,yData,'Hidden Nodes','Accuracy')
 
     ###########################################################################
