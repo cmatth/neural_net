@@ -20,7 +20,7 @@ expected = data.classOutputs()
 learningRate = .075
 inputNodes = len(testingSet[0].data)
 hiddenNodes = 250
-numEpochs = 48
+numEpochs = 14
 batchSize = 1
 numExperiments = 1
 ######################################################################
@@ -80,6 +80,12 @@ if LetterSet:
 
     pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
     pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
+
+    # Save Network Weights
+    save = raw_input('Save this network? (\'Y\' to save)')
+    import writeData as wd
+    wd.saveWeights(net.hiddenLayer,'letter_hidden_weights')
+    wd.saveWeights(net.outputLayer,'letter_output_weights')
 
     ###########################################################################
 
