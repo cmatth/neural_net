@@ -17,6 +17,15 @@ def labelIndex():
                 5 : 'J',
                 6 : 'K' }
 
+def correctIndex():
+    return {    'A' : 0,
+                'B' : 1,
+                'C' : 2,
+                'D' : 3,
+                'E' : 4,
+                'J' : 5,
+                'K' : 6}
+
 def readFromFile(path):
     with open(path) as f: content = f.readlines()
     content = [x.strip('\n') for x in content]

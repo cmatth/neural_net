@@ -114,20 +114,20 @@ class NeuralNet():
         normalize(self.finalOut)
         self.finalOut = self.softmax(self.finalOut)
 
-    def backPropagate(self,trueOut):
+    def backPropagate(self,trueOut,adjustWeights):
         # get errors in output layer
         for x in range(0, len(self.outputLayer)):
             self.outputLayer[x].calculateError(trueOut[x], self.finalOut[x])
-            self.outputLayer[x].calculateDeltas(self.hiddenOut,self.learnRate)
-
         # get errors in hidden layer
         accumlateError(self.hiddenLayer, self.outputLayer)
-        for x in self.hiddenLayer: x.calculateDeltas(self.inputOut,self.learnRate)
 
-        if self.learnStrat == 'batch':
-            # adjust weights for all nodes in network
-            for x in self.outputLayer: x.adjustWeights()
-            for x in self.hiddenLayer: x.adjustWeights()
+        if adjustWeights:
+            for x in self.outputLayer:
+                x.calculateDeltas(self.hiddenOut, self.learnRate)
+                x.adjustWeights()
+            for x in self.hiddenLayer:
+                x.calculateDeltas(self.inputOut, self.learnRate)
+                x.adjustWeights()
 
     def softmax(self,x):
         e_x = np.exp(x - np.max(x))
@@ -137,7 +137,7 @@ class NeuralNet():
 def accumlateError(layer, successor):
     for i in range(0,len(layer)):
         for x in successor:
-            layer[i].error += x.error * x.weights[i] * layer[i].tder
+            layer[i].error += x.error * x.weights[i] * layer[i].tDer
         #layer[i].error = layer[i].error * layer[i].tDer
 
 def getLayerErrors(layer):

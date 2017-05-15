@@ -4,6 +4,8 @@ import numpy as np
 import readData as rd
 import plot as pl
 import net as nt
+import metic as metric
+from random import shuffle
 
 # Define Runtime Parameters ##########################################
 LetterSet = True
@@ -15,51 +17,69 @@ testing_path =  home + 'testing.txt'
 trainingSet, testingSet = data.getDataSets(training_path, testing_path)
 expected = data.classOutputs()
 # Define Net Parameters ##############################################
-learningRate = .15
+learningRate = .075
 inputNodes = len(testingSet[0].data)
 hiddenNodes = 250
+numEpochs = 48
+batchSize = 1
+numExperiments = 1
 ######################################################################
 
 if LetterSet:
     xData = []
     yData = []
+    lYData = []
+    lXData = []
     print "Letters Data Set ###############################"
-    for z in range(0, 1):
-        avg = 0
-        iters = 2
-        for y in range(0, iters):
+    avgAcc = 0
+    avgC = 0
+    for y in range(0, numExperiments):
+        net = nt.NeuralNet(63, hiddenNodes, 7, learningRate)
+        expected = data.classOutputs()
+        indices = data.labelIndex()
+        correct = data.correctIndex()
 
-            net = nt.NeuralNet(63,hiddenNodes,7,learningRate)
-            expected = data.classOutputs()
-            indices = data.labelIndex()
-
-            count = 0
+        epochs = 1
+        numShown = 0
+        while epochs <= numEpochs:
+            #shuffle(trainingSet)
+            Fout = []
             for x in trainingSet:
-                count += 1
+                numShown += 1
                 exp = expected[x.label]
                 net.forwardPropagate(x)
-                net.backPropagate(expected[x.label])
 
                 # Decaying learning rate.
-                if count % 7 == 0:
-                    net.learnRate = net.learnRate * .65
+                #if numShown % len(testingSet) / 7 == 0:
+                if numShown % batchSize == 0:
+                    net.backPropagate(expected[x.label], True)
+                    # net.learnRate = net.learnRate * .65
+                    # Get Results
+                    count = 0
+                    for x in testingSet:
+                        net.forwardPropagate(x)
+                        if x.label == indices[np.argmax(net.finalOut)]: count += 1
+                    # TESTING ###################################################################
+                    Fout.append(net.finalOut[correct[x.label]])
+                    acc = float(count) / len(testingSet)
+                    print 'Epochs: ',epochs,'  Examples Shown: ',numShown,'  Accuracy: ',acc
+                    xData.append(epochs)
+                    yData.append(acc)
+                    #############################################################################
+                    if epochs >= 3:
+                        avgAcc += acc
+                        avgC += 1
+                else:
+                    net.backPropagate(expected[x.label], False)
+            lYData.append(metric.logloss(Fout))
+            lXData.append(epochs)
+            print 'Epoch: ', epochs, '  Log Loss: ', metric.logloss(Fout)
+            epochs += 1
+            if epochs > numEpochs: break
+    print "Average Accuracy: ", " => ", avgAcc / avgC
 
-            count = 0
-            for x in testingSet:
-                net.forwardPropagate(x)
-                if x.label == indices[np.argmax(net.finalOut)]: count += 1
-                print x.label, indices[np.argmax(net.finalOut)]
-                print count
-            print count, '/', len(testingSet)
-            acc = float(count) / len(testingSet)
-            print acc
-            avg += acc
-            print avg
-            xData.append(hiddenNodes)
-            yData.append(avg)
-
-        print "Accuracy: ", " => ", avg / iters
-    #pl.plotDataScatter('Hidden Nodes on Accuracy', xData,yData,'Hidden Nodes','Accuracy')
+    pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
+    pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
 
     ###########################################################################
 
