@@ -1,5 +1,4 @@
 import data
-#import node
 import numpy as np
 import readData as rd
 import plot as pl
@@ -20,7 +19,7 @@ expected = data.classOutputs()
 learningRate = .075
 inputNodes = len(testingSet[0].data)
 hiddenNodes = 250
-numEpochs = 14
+numEpochs = 1
 batchSize = 1
 numExperiments = 1
 ######################################################################
@@ -76,16 +75,22 @@ if LetterSet:
             print 'Epoch: ', epochs, '  Log Loss: ', metric.logloss(Fout)
             epochs += 1
             if epochs > numEpochs: break
-    print "Average Accuracy: ", " => ", avgAcc / avgC
+    #print "Average Accuracy: ", " => ", avgAcc / avgC
 
     pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
     pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
 
     # Save Network Weights
     save = raw_input('Save this network? (\'Y\' to save)')
+    if save == 'Y':
+        import writeData as wd
+        wd.saveWeights(net.hiddenLayer,'letter_hidden_weights')
+        wd.saveWeights(net.outputLayer,'letter_output_weights')
+        print 'Network has been saved.'
+    else:
+        pass
     import writeData as wd
-    wd.saveWeights(net.hiddenLayer,'letter_hidden_weights')
-    wd.saveWeights(net.outputLayer,'letter_output_weights')
+    wd.saveNetwork(net,'coolNet')
 
     ###########################################################################
 
