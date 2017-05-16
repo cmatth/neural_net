@@ -28,17 +28,16 @@ def loadWeights(filename):
 
 def loadNetwork(filename):
     import net
-    with open(filename + '/params') as infile:
-        params = json.load(infile)
-    network = net.NeuralNet(params['numInputNeurons'],
-                            params['numHiddenNeurons'],
+    with open(filename + '/params') as infile: params = json.load(infile)
+    network = net.NeuralNet(params['numInputNeurons']-1,
+                            params['numHiddenNeurons']-1,
                             params['numOutputNeurons'],
                             params['learningRate'])
     hiddenWs = loadWeights(filename + '/_hidden_weights')
     outputWs = loadWeights(filename + '/_output_weights')
-    for x in len(network.hiddenLayer):
+    for x in range(len(network.hiddenLayer)):
         network.hiddenLayer[x].weights = hiddenWs[x]
-    for x in len(network.outputLayer):
+    for x in range(len(network.outputLayer)):
         network.outputLayer[x].weights = outputWs[x]
     return network
 

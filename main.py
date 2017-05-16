@@ -77,8 +77,8 @@ if LetterSet:
             if epochs > numEpochs: break
     #print "Average Accuracy: ", " => ", avgAcc / avgC
 
-    pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
-    pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
+    #pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
+    #pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
 
     # Save Network Weights
     save = raw_input('Save this network? (\'Y\' to save)')
@@ -90,7 +90,28 @@ if LetterSet:
     else:
         pass
     import writeData as wd
-    wd.saveNetwork(net,'coolNet')
+    #wd.saveNetwork(net,'coolNet')
+    net = wd.loadNetwork('coolNet')
+
+    expected = data.classOutputs()
+    indices = data.labelIndex()
+    correct = data.correctIndex()
+    numShown = 0
+    count = 0
+    epochs = 1
+    for x in testingSet:
+        net.forwardPropagate(x)
+        if x.label == indices[np.argmax(net.finalOut)]: count += 1
+    # TESTING ###################################################################
+    #Fout.append(net.finalOut[correct[x.label]])
+    acc = float(count) / len(testingSet)
+    print 'Epochs: ', epochs, '  Examples Shown: ', numShown, '  Accuracy: ', acc
+    xData.append(epochs)
+    yData.append(acc)
+    #############################################################################
+    if epochs >= 3:
+        avgAcc += acc
+        avgC += 1
 
     ###########################################################################
 
