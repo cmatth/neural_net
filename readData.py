@@ -52,4 +52,9 @@ def homefolder():
 
 def readIDX(path):
     import idx2numpy
-    
+    ndarr = idx2numpy.convert_from_file(path)
+    f_read = open(path, 'rb')
+    ndarr = idx2numpy.convert_from_file(f_read)
+    s = f_read.read()
+    #ndarr = idx2numpy.convert_from_string(s)
+    return ndarr
