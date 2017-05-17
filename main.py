@@ -101,6 +101,7 @@ if LetterSet:
     epochs = 1
     for x in testingSet:
         net.forwardPropagate(x)
+        print x.label, indices[np.argmax(net.finalOut)]
         if x.label == indices[np.argmax(net.finalOut)]: count += 1
     # TESTING ###################################################################
     #Fout.append(net.finalOut[correct[x.label]])

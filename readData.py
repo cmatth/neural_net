@@ -30,6 +30,7 @@ def parseToArrays(dataset):
         newset.append(x.split(','))
     return newset
 
+
 def homefolder():
     l_top  = '/home/kmoney/Documents/neural_net/'
     d_top = '/home/casey/PycharmProjects/neural_net/'
@@ -48,3 +49,7 @@ def homefolder():
             if   path == 'Q':         return False
             elif os.path.isdir(path): return path
             else: print 'Invalid Path.'
+
+def readIDX(path):
+    import idx2numpy
+    

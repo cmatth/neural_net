@@ -74,7 +74,8 @@ class Layer():
         if not(output):
             self.neurons.append(Neuron(input,output,True,numWeights))
 
-class NeuralNet():
+
+class NeuralNet:
     def __init__(self, numInputNeurons, numHiddenNeurons, numOutputNeurons, learningRate):
         self.learnRate 	 = learningRate
         self.learnStrat  = 'online'
