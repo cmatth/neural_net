@@ -37,13 +37,23 @@ def getMNISTsets(path):
     trainLabs= readData.readIDX(path + '/train-labels.idx1-ubyte')
     testSet  = readData.readIDX(path + '/t10k-images.idx3-ubyte')
     testLabs = readData.readIDX(path + '/t10k-labels.idx1-ubyte')
-    #trainSet.flags.writeable = True
-
     newTrain = []
     for x in range(len(trainSet)):
         newTrain.append(data.datum(trainLabs[x],np.reshape(trainSet[x], (1,784))[0]))
     newTest = []
     for x in range(len(testSet)):
-        newTrain.append(data.datum(testLabs[x],np.reshape(testSet[x],(1,784))[0]))
-
+        newTest.append(data.datum(testLabs[x],np.reshape(testSet[x],(1,784))[0]))
     return newTrain,newTest
+
+def expectedMNISTOutputs():
+    return { 0 : [1,0,0,0,0,0,0,0,0,0],
+             1 : [0,1,0,0,0,0,0,0,0,0],
+             2 : [0,0,1,0,0,0,0,0,0,0],
+             3 : [0,0,0,1,0,0,0,0,0,0],
+             4 : [0,0,0,0,1,0,0,0,0,0],
+             5 : [0,0,0,0,0,1,0,0,0,0],
+             6 : [0,0,0,0,0,0,1,0,0,0],
+             7 : [0,0,0,0,0,0,0,1,0,0],
+             8 : [0,0,0,0,0,0,0,0,1,0],
+             9 : [0,0,0,0,0,0,0,0,0,1] }
+

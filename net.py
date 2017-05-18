@@ -36,7 +36,10 @@ class Neuron():
                 self.output = self.input
             else:
                 param = 1.1
-                self.output =  (1.0 - exp(-self.input * param)) / (1.0 + exp(-self.input * param))
+                if self.input > 0:
+                    self.output =  (1.0 - exp(-self.input * param)) / (1.0 + exp(-self.input * param))
+                else:
+                    self.output = (exp(self.input * param) - 1) / (exp(self.input * param) + 1)
             #calculate transfer derivative
             #self.tDer = self.output * (1.0 - self.output)
             self.tDer = (self.input / 2) * (1 + self.output) * (1 - self.output)
