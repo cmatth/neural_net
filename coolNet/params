@@ -1,0 +1,1 @@
+{"outputWeights": "_output_weights", "numHiddenNeurons": 251, "learningRate": 0.075, "hiddenWeights": "_hidden_weights", "numInputNeurons": 64, "numOutputNeurons": 7}
