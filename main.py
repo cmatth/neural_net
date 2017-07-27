@@ -48,11 +48,8 @@ if LetterSet:
                 exp = expected[x.label]
                 net.forwardPropagate(x)
 
-                # Decaying learning rate.
-                #if numShown % len(testingSet) / 7 == 0:
                 if numShown % batchSize == 0:
                     net.backPropagate(expected[x.label], True)
-                    # net.learnRate = net.learnRate * .65
                     # Get Results
                     count = 0
                     for x in testingSet:
@@ -77,8 +74,8 @@ if LetterSet:
             if epochs > numEpochs: break
     #print "Average Accuracy: ", " => ", avgAcc / avgC
 
-    #pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
-    #pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
+    pl.plotDataScatter('Epochs on Accuracy', xData,yData,'Epochs','Accuracy')
+    pl.plotDataScatter('Epoch on Log Loss',lXData,lYData,'Epochs','Log Loss')
 
     # Save Network Weights
     save = raw_input('Save this network? (\'Y\' to save)')
